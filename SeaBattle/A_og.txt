@@ -1,0 +1,185 @@
+A ship is at: (9,3)
+A ship is at: (9,2)
+A ship is at: (9,1)
+A ship is at: (9,0)
+A ship is at: (9,7)
+A ship is at: (9,6)
+A ship is at: (9,5)
+A ship is at: (2,9)
+A ship is at: (3,9)
+A ship is at: (4,9)
+A ship is at: (4,0)
+A ship is at: (5,0)
+A ship is at: (0,1)
+A ship is at: (0,0)
+A ship is at: (0,6)
+A ship is at: (0,5)
+A ship is at: (6,9)
+A ship is at: (9,9)
+A ship is at: (4,2)
+A ship is at: (6,3)
+A all ships are successfully placed
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (0,6)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (9,9)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (9,8)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (8,9)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (7,9)
+A field at (6,8) marked as FierdEmpty
+A field at (6,9) marked as FierdEmpty
+A field at (7,8) marked as FierdEmpty
+A field at (8,8) marked as FierdEmpty
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (0,4)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (6,4)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (2,0)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (3,9)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (1,1)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (2,6)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (5,3)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (3,3)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (4,8)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (4,4)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (9,7)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (9,6)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (9,5)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (9,4)
+A field at (8,3) marked as FierdEmpty
+A field at (8,4) marked as FierdEmpty
+A field at (8,5) marked as FierdEmpty
+A field at (9,3) marked as FierdEmpty
+A field at (8,6) marked as FierdEmpty
+A field at (8,7) marked as FierdEmpty
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (9,1)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (6,2)
+A field at (5,1) marked as FierdEmpty
+A field at (5,2) marked as FierdEmpty
+A field at (6,1) marked as FierdEmpty
+A field at (6,3) marked as FierdEmpty
+A field at (7,1) marked as FierdEmpty
+A field at (7,2) marked as FierdEmpty
+A field at (7,3) marked as FierdEmpty
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (2,8)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (6,0)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (7,0)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (5,0)
+A ------------
+computer's turn
+A vhp turn generating...
+A vhp turn generated to: (4,0)
+A field at (3,0) marked as FierdEmpty
+A field at (3,1) marked as FierdEmpty
+A field at (4,1) marked as FierdEmpty
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (7,7)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (4,6)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (1,3)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (0,0)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (8,2)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (3,7)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (3,5)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (2,4)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (7,5)
+A ------------
+computer's turn
+A hp turn generating...
+A hp turn generated to: (5,5)
