@@ -63,7 +63,7 @@ bool IGamer::destroyedShipField(int x, int y) const {
 }
 
 SeaBattle::Field IGamer::getField(int x, int y) const {
-	if (x >= 0 && x < 10 && y >= 0 && y <= 10) {
+	if (x >= 0 && x < 10 && y >= 0 && y < 10) {
 		return playfield[y][x];
 	}
 	else {
@@ -217,9 +217,11 @@ bool IGamer::allShipsDestroyed() const {
 }
 
 bool IGamer::shipIsFullyDestroyed(int x, int y) const {
+	// Left check
 	for (int i = 1; i < 4; i++) {
 		SeaBattle::Field f = getField(x + i, y);
 		if (f == SeaBattle::Field::Ship) {
+			//std::cout << "(" << x + i << "," << y << ")" << "is a ship field so ship is not fully destroyed" <<  std::endl;
 			return false;
 		}
 		if (f != SeaBattle::Field::FiredShip) {
@@ -230,6 +232,7 @@ bool IGamer::shipIsFullyDestroyed(int x, int y) const {
 	for (int i = 1; i < 4; i++) {
 		SeaBattle::Field f = getField(x - i, y);
 		if (f == SeaBattle::Field::Ship) {
+			//std::cout << "(" << x - i << "," << y << ")" << "is a ship field so ship is not fully destroyed" << std::endl;
 			return false;
 		}
 		if (f != SeaBattle::Field::FiredShip) {
@@ -239,7 +242,9 @@ bool IGamer::shipIsFullyDestroyed(int x, int y) const {
 	// Up check
 	for (int i = 1; i < 4; i++) {
 		SeaBattle::Field f = getField(x, y + i);
+
 		if (f == SeaBattle::Field::Ship) {
+			//std::cout << "(" << x << "," << y + i << ")" << "is a ship field so ship is not fully destroyed" << std::endl;
 			return false;
 		}
 		if (f != SeaBattle::Field::FiredShip) {
@@ -250,6 +255,7 @@ bool IGamer::shipIsFullyDestroyed(int x, int y) const {
 	for (int i = 1; i < 4; i++) {
 		SeaBattle::Field f = getField(x, y - i);
 		if (f == SeaBattle::Field::Ship) {
+			//std::cout << "(" << x << "," << y - i << ")" << "is a ship field so ship is not fully destroyed" << std::endl;
 			return false;
 		}
 		if (f != SeaBattle::Field::FiredShip) {

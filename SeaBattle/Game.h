@@ -4,6 +4,15 @@
 
 class Game  {
 private:
+	// fields for setting smth from console
+	const bool setFPT; //set first playertype from console
+	const bool setSPT; //set second playertype from console
+	const bool setNR; // Set number of rounds to play from console
+	const char FPT;
+	const char SPT;
+	const int NR;
+
+
 	bool drawTurnTransition;
 	bool nextGameInSeries;
 	bool newSeries;
@@ -76,6 +85,6 @@ public:
 	IGamer* getTurnPlayer() const;
 	IGamer* getWinner() const;
 
-	explicit Game(sf::RenderWindow& window);
+	explicit Game(sf::RenderWindow& window, bool& setFPT, char& FPT, bool& setSPT, char& SPT, bool& setNR, int& NR);
 	~Game();
 };

@@ -30,7 +30,15 @@ SeaBattle::MessageType RandomGamer::makeTurn(bool* turnTransition) {
 
 SeaBattle::MessageType RandomGamer::setShip() {
 	if (!log.is_open()) {
-		log.open(name + "_rg.txt");
+		if (INCUDE_DATE_IN_NAME_LOG) {
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			log.open(std::to_string(st.wDay) + "." + std::to_string(st.wMonth) + "." + std::to_string(st.wYear) + "_" +
+				std::to_string(st.wHour) + "_" + std::to_string(st.wMinute) + "_" + std::to_string(st.wSecond) + "_" + name + "_rg_game_log.txt");
+		}
+		else {
+			log.open(name + "_rg_game_log.txt");
+		}
 	}
 	while (shipsPlaced != SeaBattle::TotalShips) {
 		isVertical = std::rand() % 2;
@@ -61,4 +69,4 @@ void RandomGamer::printWin() {
 }
 
 
-RandomGamer::~RandomGamer() { }
+RandomGamer::~RandomGamer() { log.close(); }

@@ -1,6 +1,9 @@
 #include "Game.h"
 
-Game::Game(sf::RenderWindow& window) :
+Game::Game(sf::RenderWindow& window, bool& setFPT, char& FPT, bool& setSPT, char& SPT, bool& setNR, int& NR) :
+	//fields for setting smth from console
+	setFPT(setFPT), FPT(FPT), setSPT(setSPT), SPT(SPT), setNR(setNR), NR(NR),
+	//other fields
 	playerA(nullptr), playerB(nullptr), winner(nullptr),
 	stage(SeaBattle::GameStage::PlacingShips), turnTransition(false),
 	playersTurn(nullptr), message(SeaBattle::MessageType::EmptyMessage),
@@ -322,11 +325,25 @@ void Game::drawTurnTransitionMenu() const {
 void Game::processResultScreen(sf::Keyboard::Key k) {
 	switch (k) {
 	case sf::Keyboard::F1 : {
-		nextGameInSeries = true;
+		if (setNR) {
+			if (NR != seriesScore.first + seriesScore.second) {
+				nextGameInSeries = true;
+			}
+		}
+		else {
+			nextGameInSeries = true;
+		}
 		break;
 	}
 	case sf::Keyboard::F2: {
-		newSeries = true;
+		if (setNR) {
+			if (NR == seriesScore.first + seriesScore.second) {
+				newSeries = true;
+			}
+		}
+		else {
+			newSeries = true;
+		}
 		break;
 	}
 	case sf::Keyboard::Escape: {
@@ -340,7 +357,52 @@ void Game::processResultScreen(sf::Keyboard::Key k) {
 void Game::menu(sf::RenderWindow& window) {
 	seriesScore = std::make_pair(0, 0);
 	bool isMenu = true;
+	bool SPConsole = false; // second player is already set from the console
 	sf::Event event;
+
+	if (setFPT || setSPT) { // at least one players set from console
+		//set players and do not show the menu
+		if (setFPT) {
+			if (FPT == 'r') {
+				playerA = new RandomGamer(std::string("fictive name"));
+			}
+			else if (FPT == 'o') {
+				playerA = new OptimalGamer(std::string("fictive name"));
+			}
+			else if (FPT == 'c') {
+				playerA = new ConsoleGamer(std::string("fictive name"));
+			}
+			else {
+				std::cout << "error while trying to set first player type from console";
+				exit(0);
+			}
+		}
+		
+		if (setSPT) {
+			if (SPT == 'r') {
+				playerB = new RandomGamer(std::string("fictive name"));
+			}
+			else if (SPT == 'o') {
+				playerB = new OptimalGamer(std::string("fictive name"));
+			}
+			else if (SPT == 'c') {
+				playerB = new ConsoleGamer(std::string("fictive name"));
+			}
+			else {
+				std::cout << "error while trying to set second player type from console";
+				exit(0);
+			}
+		}
+
+		if (FPT && SPT) {
+			return; // both players set from console
+		}
+		if (FPT) {
+			// only first player set from console
+			choosingFirstPlayer = false;
+		}
+	}
+
 	while (isMenu) {
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
@@ -358,11 +420,14 @@ void Game::menu(sf::RenderWindow& window) {
 					if (choosingFirstPlayer) {
 						choosingFirstPlayer = false;
 						playerA = new RandomGamer(std::string("fictive name"));
+						if (SPT) {
+							// second player already set from console
+							return;
+						}
 					}
 					else {
 						playerB = new RandomGamer(std::string("fictive name"));
 						isMenu = false;
-						choosingFirstPlayer = true; // for the next series
 					}
 					break;
 				}
@@ -370,11 +435,14 @@ void Game::menu(sf::RenderWindow& window) {
 					if (choosingFirstPlayer) {
 						playerA = new ConsoleGamer(std::string("fictive name"));
 						choosingFirstPlayer = false;
+						if (SPT) {
+							// second player already set from console
+							return;
+						}
 					}
 					else {
 						playerB = new ConsoleGamer(std::string("fictive name"));
 						isMenu = false;
-						choosingFirstPlayer = true; // for the next series
 					}
 					break;
 				}
@@ -382,11 +450,14 @@ void Game::menu(sf::RenderWindow& window) {
 					if (choosingFirstPlayer) {
 						playerA = new OptimalGamer(std::string("fictive name"));
 						choosingFirstPlayer = false;
+						if (SPT) {
+							// second player already set from console
+							return;
+						}
 					}
 					else {
 						playerB = new OptimalGamer(std::string("fictive name"));
 						isMenu = false;
-						choosingFirstPlayer = true; // for the next series
 					}
 					break;
 				}
@@ -430,6 +501,7 @@ void Game::init() {
 		}
 	}
 
+	choosingFirstPlayer = true;
 	winner = nullptr;
 	stage = SeaBattle::GameStage::PlacingShips;
 	turnTransition = false;
@@ -614,9 +686,40 @@ void Game::drawGame(sf::RenderWindow& window) {
 		toWrite = "\n\nSeries score:   " + std::to_string(seriesScore.first) + " - " + std::to_string(seriesScore.second);
 		text.setString(toWrite);
 		window.draw(text);
+		if (setNR) {
+			text.move(0, 40);
+			if (seriesScore.first + seriesScore.second < NR) {
+				toWrite = "\n\nYou played " + std::to_string((seriesScore.first + seriesScore.second)) + " game(s)\n"
+					"You need to play " + std::to_string(NR - (seriesScore.first + seriesScore.second)) + " more game(s)";
+				text.setString(toWrite);
+				window.draw(text);
+				text.move(0, 40);
+			}
+			if (seriesScore.first + seriesScore.second == NR) {
+				if (seriesScore.first > seriesScore.second) {
+					toWrite = "\n\nFirst player won the series!";
+				}
+				else if (seriesScore.first < seriesScore.second) {
+					toWrite = "\n\nSecond player won the series!";
+				}
+				else {
+					toWrite = "\n\nYou have equal scores in series!";
+				}
+				text.setString(toWrite);
+				window.draw(text);
+			}
+			text.setString(toWrite);
+		}
 
 		text.move(0, 40);
-		toWrite = "\n\nf1 - play next game in series\n\nf2 - play new series\n\nesc - exit";
+		toWrite = "";
+		if (!setNR || NR != seriesScore.first + seriesScore.second) {
+			toWrite += "\n\nf1 - play next game in series";
+		}
+		if (!setNR || NR == seriesScore.first + seriesScore.second) {
+			toWrite += "\n\nf2 - play new series";
+		}
+		toWrite += "\n\nesc - exit";
 		text.setString(toWrite);
 		window.draw(text);
 		
