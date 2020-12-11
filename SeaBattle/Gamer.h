@@ -59,6 +59,8 @@ public:
 
 class RandomGamer : public IGamer {
 private:
+	bool INCUDE_DATE_IN_NAME_LOG = true;
+
 	std::string name;
 	std::ofstream log;
 
@@ -85,6 +87,7 @@ public:
 
 class OptimalGamer : public IGamer {
 private:
+	bool INCUDE_DATE_IN_NAME_LOG = true;
 	bool availableFields() const;
 	void printTurns() const;
 
@@ -92,23 +95,18 @@ private:
 	std::ofstream log;
 
 	SeaBattle::Field turns[10][10];
-	bool highPriorityFields() const;
 	bool veryHighPriorityFieldFlag;
-	int nonSingleFieldShipsDestroyed;
+	std::pair <int, int> veryHighPriorityField;
 
 	std::pair <int, int> generateVeryHighPriorityTurn();
-	std::pair <int, int> generateHighPriorityTurn() const;
 	std::pair <int, int> generateTurn();
-
-	std::pair <int, int> veryHighPriorityField;
-	std::pair <int, int> prevVHPturn;
 
 	void updateTurns(int x, int y);
 	SeaBattle::Field getFieldFromTurns(int x, int y) const;
 	void setFieldsInTurns(int x, int y);
 
-	SeaBattle::MoveDirection directory;
-	bool isDetectedDirectory;
+	SeaBattle::MoveDirection direction;
+	bool detectedDirection;
 	bool changeDirectionToOpposite;
 public:
 	explicit OptimalGamer(std::string _name);

@@ -2,17 +2,17 @@
 #include <iostream>
 
 OptimalGamer::OptimalGamer(std::string _name): veryHighPriorityFieldFlag(false), veryHighPriorityField(std::make_pair(0, 0)),
-	prevVHPturn(std::make_pair(0, 0)), directory(SeaBattle::MoveDirection::NoDirection), isDetectedDirectory(false),
-	changeDirectionToOpposite(false), nonSingleFieldShipsDestroyed(0), name(_name) {
+	direction(SeaBattle::MoveDirection::NoDirection), detectedDirection(false),
+	changeDirectionToOpposite(false), name(_name) {
 	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < 10; j++) {
 			turns[i][j] = SeaBattle::Field::Empty;
 		}
 	}
-}
+} 
 
 SeaBattle::MessageType OptimalGamer::makeTurn(bool* turnTransition) {
-	if (enemy->allShipsDestroyed()) {
+	/*if (enemy->allShipsDestroyed()) {
 		*turnTransition = true;
 		return SeaBattle::MessageType::Miss;
 	}
@@ -29,13 +29,13 @@ SeaBattle::MessageType OptimalGamer::makeTurn(bool* turnTransition) {
 		log << name << " vhp turn generated to: (" << turn.first << "," << turn.second << ")" << std::endl;
 		if (enemy->getTurn(turn.first, turn.second)) {
 			turns[turn.second][turn.first] = SeaBattle::Field::FiredShip;
-			isDetectedDirectory = true;
+			detectedDirection  = true;
 			if (enemy->shipIsFullyDestroyed(turn.first, turn.second)) {
 				updateTurns(turn.first, turn.second);
 				veryHighPriorityFieldFlag = false;
 				//reset vht parameters
-				directory = SeaBattle::MoveDirection::NoDirection;
-				isDetectedDirectory = false;
+				direction = SeaBattle::MoveDirection::NoDirection; 
+				detectedDirection  = false;
 				prevVHPturn = std::make_pair(0, 0);
 				changeDirectionToOpposite = false;
 			}
@@ -47,7 +47,7 @@ SeaBattle::MessageType OptimalGamer::makeTurn(bool* turnTransition) {
 		}
 		else {
 			turns[turn.second][turn.first] = SeaBattle::Field::FiredEmpty;
-			if (isDetectedDirectory) {
+			if (detectedDirection ) {
 				if (!enemy->shipIsFullyDestroyed(prevVHPturn.first, prevVHPturn.second)) {
 					changeDirectionToOpposite = true;
 				}
@@ -95,16 +95,83 @@ SeaBattle::MessageType OptimalGamer::makeTurn(bool* turnTransition) {
 		}
 	}
 	*turnTransition = true;
+	return SeaBattle::MessageType::Miss;*/
+
+
+	if (enemy->allShipsDestroyed()) {
+		log << name << " ------------" << "all enemy ships are destroyed!" << std::endl;
+		*turnTransition = true;
+		return SeaBattle::MessageType::Miss;
+	}
+	
+	if (veryHighPriorityFieldFlag) {
+		log << name << " generating vhp turn..." << std::endl;
+		std::pair<int, int> t = generateVeryHighPriorityTurn();
+		log << name << " vhp turn generated to (" << t.first << "," << t.second << ")" << std::endl;
+
+		if (enemy->getTurn(t.first, t.second)) {
+			turns[t.second][t.first] = SeaBattle::Field::FiredShip;
+
+			veryHighPriorityField = t;
+
+			if (!detectedDirection ) {
+				detectedDirection  = true;
+			}
+
+			if (enemy->shipIsFullyDestroyed(t.first, t.second)) {
+				log << name << " vhp ship is fully destroyed" << std::endl;
+				updateTurns(t.first, t.second);
+
+				//reset vhp parameters
+				veryHighPriorityFieldFlag = false;
+				direction = SeaBattle::MoveDirection::NoDirection;
+				detectedDirection  = false;
+				changeDirectionToOpposite = false;
+			}
+
+			return makeTurn(turnTransition);
+		}
+		else {
+			turns[t.second][t.first] = SeaBattle::Field::FiredEmpty;
+			if (detectedDirection ) {
+				changeDirectionToOpposite = true;
+			}
+		}
+	
+	}
+	else {
+		log << name << " generating turn..." << std::endl;
+		std::pair<int, int> t = generateTurn();
+		log << name << " turn generated to (" << t.first << "," << t.second << ")" << std::endl;
+
+		if (enemy->getTurn(t.first, t.second)) {
+			turns[t.second][t.first] = SeaBattle::Field::FiredShip;
+
+			if (enemy->shipIsFullyDestroyed(t.first, t.second)) {
+				log << name << " ship is fully destroyed" << std::endl;
+				updateTurns(t.first, t.second);
+			}
+			else {
+				veryHighPriorityFieldFlag = true;
+				veryHighPriorityField = t;
+			}
+
+			return makeTurn(turnTransition);
+		}
+
+		turns[t.second][t.first] = SeaBattle::Field::FiredEmpty;
+	}
+	*turnTransition = true;
 	return SeaBattle::MessageType::Miss;
 }
 
 std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
-	if (changeDirectionToOpposite) {
-		// opposite directory turn
+	/*if (changeDirectionToOpposite) {
+		// opposite direction turn
 		changeDirectionToOpposite = false;
-		switch (directory) {
+		switch (direction) {
 		case SeaBattle::MoveDirection::Up: {
-			directory = SeaBattle::MoveDirection::Down;
+			direction = SeaBattle::MoveDirection::Down;
 			int i = 0;
 			while (turns[veryHighPriorityField.second - i][veryHighPriorityField.first] == SeaBattle::Field::FiredShip) {
 				i++;
@@ -112,7 +179,7 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second - i);
 		}
 		case SeaBattle::MoveDirection::Right: {
-			directory = SeaBattle::MoveDirection::Left;
+			direction = SeaBattle::MoveDirection::Left;
 			int i = 0;
 			while (turns[veryHighPriorityField.second][veryHighPriorityField.first - i] == SeaBattle::Field::FiredShip) {
 				i++;
@@ -120,7 +187,7 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 			return std::make_pair(veryHighPriorityField.first - i, veryHighPriorityField.second);
 		}
 		case SeaBattle::MoveDirection::Down: {
-			directory = SeaBattle::MoveDirection::Up;
+			direction = SeaBattle::MoveDirection::Up;
 			int i = 0;
 			while (turns[veryHighPriorityField.second + i][veryHighPriorityField.first] == SeaBattle::Field::FiredShip) {
 				i++;
@@ -128,7 +195,7 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second + i);
 		}
 		case  SeaBattle::MoveDirection::Left: {
-			directory = SeaBattle::MoveDirection::Right;
+			direction = SeaBattle::MoveDirection::Right;
 			int i = 0;
 			while (turns[veryHighPriorityField.second][veryHighPriorityField.first + i] == SeaBattle::Field::FiredShip) {
 				i++;
@@ -138,27 +205,27 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 		}
 	}
 	else {
-		if (!isDetectedDirectory) {
-			switch (directory) {
+		if (!detectedDirection ) {
+			switch (direction) {
 			case SeaBattle::MoveDirection::NoDirection: {
-				directory = SeaBattle::MoveDirection::Up;
+				direction = SeaBattle::MoveDirection::Up;
 				break;
 			}
 			case SeaBattle::MoveDirection::Up: {
-				directory = SeaBattle::MoveDirection::Right;
+				direction = SeaBattle::MoveDirection::Right;
 				break;
 			}
 			case SeaBattle::MoveDirection::Right: {
-				directory = SeaBattle::MoveDirection::Down;
+				direction = SeaBattle::MoveDirection::Down;
 				break;
 			}
 			case SeaBattle::MoveDirection::Down: {
-				directory = SeaBattle::MoveDirection::Left;
+				direction = SeaBattle::MoveDirection::Left;
 				break;
 			}
 			default: break;
 			}
-			switch (directory) {
+			switch (direction) {
 			case SeaBattle::MoveDirection::Up: {
 				if (veryHighPriorityField.second < 9 && turns[veryHighPriorityField.second + 1][veryHighPriorityField.first] != SeaBattle::Field::FiredEmpty) {
 					return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second + 1);
@@ -196,7 +263,7 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 			}
 		}
 		else {
-			switch (directory) {
+			switch (direction) {
 			case SeaBattle::MoveDirection::Up: {
 				if (veryHighPriorityField.second < 9) {
 					return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second + 1);
@@ -225,6 +292,131 @@ std::pair<int, int> OptimalGamer::generateVeryHighPriorityTurn() {
 			changeDirectionToOpposite = true;
 			return generateHighPriorityTurn();
 		}
+	}*/
+	
+	if (changeDirectionToOpposite) {
+		changeDirectionToOpposite = false;
+		switch (direction) {
+		case SeaBattle::MoveDirection::Up: {
+			direction = SeaBattle::MoveDirection::Down;
+			int i = 0;
+			while (turns[veryHighPriorityField.second - i][veryHighPriorityField.first] == SeaBattle::Field::FiredShip) {
+				if (veryHighPriorityField.second - i - 1 < 0) {
+					std::cout << "prgramm failed while changing direction to opposyte" << std::endl;
+					exit(1);
+				}
+				i++;
+			}
+			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second - i);
+		}
+		case SeaBattle::MoveDirection::Right: {
+			direction = SeaBattle::MoveDirection::Left;
+			int i = 0;
+			while (turns[veryHighPriorityField.second][veryHighPriorityField.first - i] == SeaBattle::Field::FiredShip) {
+				if (veryHighPriorityField.first - i - 1 < 0) {
+					std::cout << "prgramm failed while changing direction to opposyte" << std::endl;
+					exit(1);
+				}
+				i++;
+			}
+			return std::make_pair(veryHighPriorityField.first - i, veryHighPriorityField.second);
+		}
+		case SeaBattle::MoveDirection::Down: {
+			direction = SeaBattle::MoveDirection::Up;
+			int i = 0;
+			while (turns[veryHighPriorityField.second + i][veryHighPriorityField.first] == SeaBattle::Field::FiredShip) {
+				if (veryHighPriorityField.second + i + 1 > 9) {
+					std::cout << "prgramm failed while changing direction to opposyte" << std::endl;
+					exit(1);
+				}
+				i++;
+			}
+			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second + i);
+		}
+		case SeaBattle::MoveDirection::Left: {
+			direction = SeaBattle::MoveDirection::Right;
+			int i = 0;
+			while (turns[veryHighPriorityField.second][veryHighPriorityField.first + i] == SeaBattle::Field::FiredShip) {
+				if (veryHighPriorityField.first + i + 1 > 9) {
+					std::cout << "prgramm failed while changing direction to opposyte" << std::endl;
+					exit(1);
+				}
+				i++;
+			}
+			return std::make_pair(veryHighPriorityField.first + i, veryHighPriorityField.second);
+		}
+		}
+	}
+
+
+	if (!detectedDirection ) {
+		switch (direction) {
+			case SeaBattle::MoveDirection::NoDirection: {
+				direction = SeaBattle::MoveDirection::Up;
+				break;
+			}
+			case SeaBattle::MoveDirection::Up: {
+				direction = SeaBattle::MoveDirection::Right;
+				break;
+			}
+			case SeaBattle::MoveDirection::Right: {
+				direction = SeaBattle::MoveDirection::Down;
+				break;
+			}
+			case SeaBattle::MoveDirection::Down: {
+				direction = SeaBattle::MoveDirection::Left;
+				break;
+			}
+			case SeaBattle::MoveDirection::Left: { // unreachable ?
+				std::cout << "programme failed to generate vhp turn at detecting direction";
+				exit(0);
+			}
+		}
+	}
+
+	switch (direction) {
+	case SeaBattle::MoveDirection::Up: {
+		if (veryHighPriorityField.second < 9 && turns[veryHighPriorityField.second + 1][veryHighPriorityField.first] == SeaBattle::Field::Empty) {
+			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second + 1);
+		}
+		else {
+			if (detectedDirection  &&  (veryHighPriorityField.second >= 9 || turns[veryHighPriorityField.second + 1][veryHighPriorityField.first] != SeaBattle::Field::Empty)) {
+				changeDirectionToOpposite = true;
+			}
+			return generateVeryHighPriorityTurn();
+		}
+	}
+	case SeaBattle::MoveDirection::Right: {
+		if (veryHighPriorityField.first < 9 && turns[veryHighPriorityField.second][veryHighPriorityField.first + 1] == SeaBattle::Field::Empty) {
+			return std::make_pair(veryHighPriorityField.first + 1, veryHighPriorityField.second);
+		}
+		else {
+			if (detectedDirection  && (veryHighPriorityField.first >= 9|| turns[veryHighPriorityField.second][veryHighPriorityField.first + 1] != SeaBattle::Field::Empty)) {
+				changeDirectionToOpposite = true;
+			}
+			return generateVeryHighPriorityTurn();
+		}
+	}
+	case SeaBattle::MoveDirection::Down: {
+		if (veryHighPriorityField.second > 0 && turns[veryHighPriorityField.second - 1][veryHighPriorityField.first] == SeaBattle::Field::Empty) {
+			return std::make_pair(veryHighPriorityField.first, veryHighPriorityField.second - 1);
+		}
+		else {
+			if (detectedDirection  && (veryHighPriorityField.second <= 0 || turns[veryHighPriorityField.second - 1][veryHighPriorityField.first] != SeaBattle::Field::Empty)) {
+				changeDirectionToOpposite = true;
+			}
+			return generateVeryHighPriorityTurn();
+		}
+	}
+	case SeaBattle::MoveDirection::Left: {
+		if (veryHighPriorityField.first > 0 && turns[veryHighPriorityField.second][veryHighPriorityField.first - 1] == SeaBattle::Field::Empty) {
+			return std::make_pair(veryHighPriorityField.first - 1, veryHighPriorityField.second);
+		}
+		else { // ????
+			std::cout << "programme failed to generate vhp turn at making turn";
+			exit(0);
+		}
+	}
 	}
 }
 
@@ -237,6 +429,9 @@ std::pair<int, int> OptimalGamer::generateTurn() {
 			return turn;
 		}
 	}
+	//std::pair<int, int>t = turns_test[turnCounter];
+	//turnCounter++;
+	//return turn;
 }
 
 bool OptimalGamer::availableFields() const {
@@ -271,7 +466,7 @@ void OptimalGamer::printTurns() const {
 	}
 }
 
-bool OptimalGamer::highPriorityFields() const {
+/*bool OptimalGamer::highPriorityFields() const {
 	if (nonSingleFieldShipsDestroyed >= SeaBattle::TotalShips - 4) {
 		return false;
 	}
@@ -290,11 +485,11 @@ bool OptimalGamer::highPriorityFields() const {
 		}
 	}
 	return false;
-}
+}*/
 
 void OptimalGamer::updateTurns(int x, int y) {
 	if (getFieldFromTurns(x - 1, y) == SeaBattle::Field::FiredShip || getFieldFromTurns(x + 1, y) == SeaBattle::Field::FiredShip) {
-		nonSingleFieldShipsDestroyed++;
+		//nonSingleFieldShipsDestroyed++;
 		// ship is horizontal
 		for (int i = 0; i < 4; i++) {
 			if (getFieldFromTurns(x - i, y) == SeaBattle::Field::FiredShip) {
@@ -313,11 +508,12 @@ void OptimalGamer::updateTurns(int x, int y) {
 			}
 		}
 	}
-	if (getFieldFromTurns(x - 1, y) != SeaBattle::Field::FiredShip && getFieldFromTurns(x + 1, y) != SeaBattle::Field::FiredShip
+	else {
+	/*if (getFieldFromTurns(x - 1, y) != SeaBattle::Field::FiredShip && getFieldFromTurns(x + 1, y) != SeaBattle::Field::FiredShip
 		&& getFieldFromTurns(x, y) == SeaBattle::Field::FiredShip) {
 		if (getFieldFromTurns(x, y - 1) == SeaBattle::Field::FiredShip || getFieldFromTurns(x, y + 1) == SeaBattle::Field::FiredShip) {
 			nonSingleFieldShipsDestroyed++;
-		}
+		}*/
 
 		// ship is vertical or 1-field ship
 		for (int i = 0; i < 4; i++) {
@@ -360,7 +556,7 @@ void OptimalGamer::setFieldsInTurns(int x, int y) {
 	}
 }
 
-std::pair <int, int> OptimalGamer::generateHighPriorityTurn() const {
+/*std::pair <int, int> OptimalGamer::generateHighPriorityTurn() const {
 	while (true) {
 		int x;
 		int y = std::rand() % 10;
@@ -374,11 +570,19 @@ std::pair <int, int> OptimalGamer::generateHighPriorityTurn() const {
 			return std::make_pair(x, y);
 		}
 	}
-}
+}*/
 
 SeaBattle::MessageType OptimalGamer::setShip() {
 	if (!log.is_open()) {
-		log.open(name + "_og.txt");
+		if (INCUDE_DATE_IN_NAME_LOG) {
+			SYSTEMTIME st;
+			GetLocalTime(&st);
+			log.open(std::to_string(st.wDay) + "." + std::to_string(st.wMonth) + "." + std::to_string(st.wYear) + "_" +
+				std::to_string(st.wHour) + "_" + std::to_string(st.wMinute) + "_" + std::to_string(st.wSecond) + "_" + name + "_og_game_log.txt");
+		}
+		else {
+			log.open(name + "_og_game_log.txt");
+		}
 	}
 
 	while (shipsPlaced != SeaBattle::TotalShips) {
